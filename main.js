@@ -3,6 +3,7 @@
 const {app, BrowserWindow, ipcMain, Menu, dialog} = require("electron")
 const path = require("path");
 const mysql = require('mysql2/promise')
+const events = require("node:events");
 
 
 //Fenêtre principale
@@ -168,4 +169,29 @@ ipcMain.handle('todos:getAll', async () => {
     }
 })
 
+async function addTodo(title){
+    try {
+     console.log('Ajout d une nouvelle tâche : {$title}');
+     const [result] = await pool.query('INSERT INTO todos (titre,termine) VALUES (?, ?), [title,0]')
+        console.log('Tâche ajoutée avec l identifiant ${result.insertId}')
+        return
+    }catch (error) {
+        console.error('Erreur lors de l ajout de la tâche')
+        throw error;
+    }
+}
+
+
+//Ecouter le canal "todos:ass"
+ipcMain.handle('todos:add', async (event, title) =>{
+    //ajouter une tâche dans la bdd
+    try {
+        await addTodo(title)
+        return{success:true}
+    }catch (error) {
+        console.log('Erreur lors de l ajout de la tâche')
+        dialog.showErrorBox('Erreur de BDD', 'Impossible d ajouter la tâche')
+        throw error;
+    }
+})
 

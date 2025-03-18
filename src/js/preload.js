@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('versions', {
 contextBridge.exposeInMainWorld('todosAPI', {
     //Fonction qui récupère la liste des tâches via IPC
     getAll: () => ipcRenderer.invoke('todos:getAll'),
+    add: (title) => ipcRenderer.invoke('todos:all', title)
 })
 
 
